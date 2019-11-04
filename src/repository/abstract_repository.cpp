@@ -8,6 +8,9 @@
 #include <QNetworkReply>
 #include <QDebug>
 #include <QUrlQuery>
+#include <QHttpPart>
+#include <QMimeDatabase>
+#include <QFileInfo>
 
 AbstractRepository::AbstractRepository(QObject *parent)
     : QObject(parent)
@@ -83,6 +86,7 @@ const QString AbstractRepository::toString(QNetworkAccessManager::Operation op)
         case QNetworkAccessManager::CustomOperation: return "CUSTOM";
         case QNetworkAccessManager::UnknownOperation: return "UNKNOWN";
     }
+    return "";
 }
 
 void AbstractRepository::handleReply(QNetworkReply *reply)
@@ -100,6 +104,21 @@ const QNetworkRequest AbstractRepository::buildRequest(const QUrl &url, bool app
     if(apply_ssl_conf)
         request.setSslConfiguration(ssl_conf_);
     return request;
+}
+
+const QNetworkRequest AbstractRepository::buildJsonRequest(const QJsonDocument &document, const QUrl &url, bool apply_ssl_config) const
+{
+    QByteArray body = document.toJson();
+    return buildJsonRequest(body, url, apply_ssl_config);
+}
+
+const QNetworkRequest AbstractRepository::buildJsonRequest(const QByteArray &data, const QUrl &url, bool apply_ssl_config) const
+{
+    QByteArray content_length = QByteArray::number(data.size());
+    auto req = buildRequest(url, apply_ssl_config);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    req.setHeader(QNetworkRequest::ContentLengthHeader, content_length);
+    return req;
 }
 
 const QUrl AbstractRepository::buildUrl(const QString &path, bool requires_access_token) const
@@ -123,9 +142,38 @@ const QUrl AbstractRepository::buildUrl(const QString &path, const QMap<QString,
     return url;
 }
 
+QHttpMultiPart *AbstractRepository::buildFilePayload(const QString &file_path, const QString &http_part_name)
+{
+    QHttpPart file_part;
+    QMimeDatabase mime;
+    QHttpMultiPart *file_data = new QHttpMultiPart(QHttpMultiPart::FormDataType, this);
+
+    QFile *file = new QFile(file_path);
+    file->open(QIODevice::ReadOnly);
+
+    if (file->error() != QFile::NoError) {
+      qDebug() << file->errorString().toLatin1();
+      return nullptr;
+    }
+
+    QFileInfo fi(file->fileName());
+
+    QString content_disposition = "form-data; name=\""+ http_part_name +"\"; ";
+    content_disposition += "filename=\"" + fi.completeBaseName() + "." + fi.completeSuffix() + "\"";
+
+    file_part.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(content_disposition));
+    file_part.setBodyDevice(file);
+    file->setParent(file_data);
+    file_data->append(file_part);
+
+    return file_data;
+}
+
 void AbstractRepository::onHandleError(QNetworkReply *reply)
 {
-    qDebug() << reply->errorString() << "\n";
+    qDebug() << "FAILURE:";
+    qDebug() << "  > " << reply->request().url().path();
+    qDebug() << "  > " << reply->errorString() << "\n";
 }
 
 void AbstractRepository::initNetworkAccess()

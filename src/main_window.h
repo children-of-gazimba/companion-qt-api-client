@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QTableView>
 
-#include "view/sound_table_view.h"
+#include "model/sound_table_model.h"
 
 class MainWindow : public QMainWindow
 {
@@ -19,7 +20,8 @@ private:
     void initLayout();
 
     QPushButton* button_refresh_;
-    SoundTableView* sound_view_;
-
+    QPushButton* button_upload_;
+    QTableView* sound_view_;
+    SoundTableModel* sound_model_;
 };
 #endif // MAINWINDOW_H

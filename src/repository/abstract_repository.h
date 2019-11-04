@@ -38,9 +38,18 @@ protected slots:
 
 protected:
     QNetworkRequest const buildRequest(const QUrl& url, bool apply_ssl_conf = true) const;
+
+    QNetworkRequest const buildJsonRequest(const QJsonDocument& document, const QUrl& url,
+                                           bool apply_ssl_config = true) const;
+    QNetworkRequest const buildJsonRequest(const QByteArray& data, const QUrl& url,
+                                           bool apply_ssl_config = true) const;
+
     QUrl const buildUrl(const QString &path, bool requires_access_token = true) const;
     QUrl const buildUrl(const QString &path, const QMap<QString, QString> &queryItems,
                         bool requires_access_token = true) const;
+
+    QHttpMultiPart* buildFilePayload(const QString& file_path,
+                                     const QString& http_part_name="data");
 
     virtual void onHandleError(QNetworkReply* reply);
     virtual void onHandleReply(QNetworkReply* reply) = 0;
