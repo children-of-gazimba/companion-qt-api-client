@@ -21,6 +21,8 @@ public:
     bool uploadSoundData(const SoundData& sound);
     bool deleteSounds(const QList<SoundData>& sounds);
 
+    const QUrl getRemoteUrl(const SoundData& sound) const;
+
 signals:
     void soundsReceived(const QList<SoundData>& sounds);
     void soundCreated(const SoundData& sound);

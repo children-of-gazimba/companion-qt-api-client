@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     , button_upload_(new QPushButton(tr("upload"), this))
     , sound_view_(new QTableView(this))
     , sound_model_(new SoundTableModel(this))
+    , sound_label_(new QLineEdit(this))
+    , button_play_(new QPushButton(tr("play"), this))
+    , player_(new QMediaPlayer(this, QMediaPlayer::StreamPlayback))
 {
     initWidgets();
     initLayout();
@@ -31,9 +34,49 @@ MainWindow::~MainWindow()
 
 void MainWindow::initWidgets()
 {
+    QNetworkConfiguration conf;
+
+
+    sound_label_->setReadOnly(true);
+    connect(sound_label_, &QLineEdit::textChanged,
+            this, [=](const QString& text) {
+        button_play_->setEnabled(text.size() > 0);
+        if(player_->state() == QMediaPlayer::PlayingState)
+            player_->stop();
+        QNetworkRequest req;
+        QSslConfiguration conf = QSslConfiguration::defaultConfiguration();
+        conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+        req.setUrl(QUrl(text));
+        req.setSslConfiguration(conf);
+        player_->setMedia(QMediaContent(req));
+
+        /*
+        gst-pipeline: appsrc blocksize=4294967295 ! \
+      video/x-raw,format=BGRx,framerate=30/1,width=200,height=147 ! \
+      coloreffects preset=heat ! videoconvert ! video/x-raw,format=I420 ! jpegenc ! rtpjpegpay ! \
+      udpsink host=127.0.0.1 port=5000
+        */
+    });
+
+    connect(player_, &QMediaPlayer::stateChanged,
+            this, [=](QMediaPlayer::State state){
+        switch(state) {
+            case QMediaPlayer::PlayingState: button_play_->setText(tr("stop")); break;
+            default: button_play_->setText(tr("play"));
+        }
+    });
+
+    button_play_->setEnabled(false);
+    connect(button_play_, &QPushButton::clicked,
+            this, [=](){
+        switch(player_->state()) {
+            case QMediaPlayer::PlayingState: player_->stop(); break;
+            default: player_->play();
+        }
+    });
+
     sound_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     sound_view_->setModel(sound_model_);
-
     sound_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
     sound_view_->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(sound_view_, &QTableView::customContextMenuRequested,
@@ -43,6 +86,11 @@ void MainWindow::initWidgets()
             sound_model_->removeRows(sound_view_->selectionModel()->selectedRows());
         });
         menu->exec(mapToGlobal(p));
+    });
+
+    connect(sound_view_, &QTableView::doubleClicked,
+            this, [=](const QModelIndex& index) {
+        sound_label_->setText(sound_model_->getRemoteUrl(index).toString());
     });
 
     connect(button_refresh_, &QPushButton::clicked,
@@ -60,10 +108,18 @@ void MainWindow::initWidgets()
 
 void MainWindow::initLayout()
 {
+
+    QHBoxLayout* player_layout = new QHBoxLayout;
+    player_layout->addWidget(sound_label_, 3);
+    player_layout->addWidget(button_play_, 1);
+    player_layout->setContentsMargins(0,0,0,0);
+
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(sound_view_);
     layout->addWidget(button_refresh_);
     layout->addWidget(button_upload_);
+    layout->addLayout(player_layout);
+
     QWidget* container = new QWidget(this);
     container->setLayout(layout);
     setCentralWidget(container);

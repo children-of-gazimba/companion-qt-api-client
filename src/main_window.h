@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QTableView>
+#include <QLineEdit>
+#include <QMediaPlayer>
 
 #include "model/sound_table_model.h"
 
@@ -23,5 +25,9 @@ private:
     QPushButton* button_upload_;
     QTableView* sound_view_;
     SoundTableModel* sound_model_;
+    QLineEdit* sound_label_;
+    QPushButton* button_play_;
+
+    QMediaPlayer* player_;
 };
 #endif // MAINWINDOW_H

@@ -124,6 +124,11 @@ bool SoundRepository::deleteSounds(const QList<SoundData> &sounds)
     return true;
 }
 
+const QUrl SoundRepository::getRemoteUrl(const SoundData &sound) const
+{
+    return buildUrl("/api/sound/data/"+sound.uuid);
+}
+
 void SoundRepository::onGetSoundsReply(QNetworkReply *reply)
 {
     parseSoundsReceived(reply->readAll());

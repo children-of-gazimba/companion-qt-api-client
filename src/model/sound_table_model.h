@@ -40,6 +40,8 @@ public:
 
     void createSound(const QString& name, const QString& local_path, bool upload_data = true);
 
+    const QUrl getRemoteUrl(const QModelIndex& index) const;
+
 Q_SIGNALS:
 
 public Q_SLOTS:

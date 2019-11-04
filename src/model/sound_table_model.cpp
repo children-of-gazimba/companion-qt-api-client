@@ -123,6 +123,14 @@ void SoundTableModel::createSound(const QString &name, const QString &local_path
     repo_->createSound(name, local_path, upload_data);
 }
 
+const QUrl SoundTableModel::getRemoteUrl(const QModelIndex &index) const
+{
+    if(!indexIsValid(index))
+        return QUrl();
+
+    return repo_->getRemoteUrl(sounds_[index.row()]);
+}
+
 void SoundTableModel::onRepoReceivedSounds(const QList<SoundData> &sounds)
 {
     sounds_ = sounds;
