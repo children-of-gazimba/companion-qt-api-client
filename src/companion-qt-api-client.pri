@@ -19,13 +19,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    data_types.cpp \
-    model/sound_table_model.cpp \
-    repository/abstract_repository.cpp \
-    repository/sound_repository.cpp
+    $$PWD/data_types.cpp \
+    $$PWD/model/sound_table_model.cpp \
+    $$PWD/repository/abstract_repository.cpp \
+    $$PWD/repository/sound_repository.cpp
 
 HEADERS += \
-    data_types.h \
-    model/sound_table_model.h \
-    repository/abstract_repository.h \
-    repository/sound_repository.h
+    $$PWD/data_types.h \
+    $$PWD/model/sound_table_model.h \
+    $$PWD/repository/abstract_repository.h \
+    $$PWD/repository/sound_repository.h
