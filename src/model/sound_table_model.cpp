@@ -72,17 +72,6 @@ QVariant SoundTableModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-bool SoundTableModel::removeRows(const QModelIndexList &indexes)
-{
-    QList<SoundData> sounds;
-    for(auto index: indexes) {
-        if(indexIsValid(index))
-            sounds.append(sounds_[index.row()]);
-    }
-
-    return repo_->deleteSounds(sounds);
-}
-
 Qt::ItemFlags SoundTableModel::flags(const QModelIndex &index) const
 {
     if(!indexIsValid(index))
@@ -102,16 +91,33 @@ bool SoundTableModel::setHeaderData(int, Qt::Orientation, const QVariant &, int)
     return false;
 }
 
-/*bool SoundTableModel::removeColumns(int, int, const QModelIndex&)
+bool SoundTableModel::removeColumns(int, int, const QModelIndex&)
 {
     return false;
 }
 
-bool SoundTableModel::removeRows(int, int, const QModelIndex&)
+bool SoundTableModel::removeRows(const QModelIndexList &indexes)
 {
-    // TODO support remove
-    return false;
-}*/
+    QList<SoundData> sounds;
+    for(auto index: indexes) {
+        if(indexIsValid(index))
+            sounds.append(sounds_[index.row()]);
+    }
+
+    return repo_->deleteSounds(sounds);
+}
+
+bool SoundTableModel::removeRows(int row, int count, const QModelIndex&)
+{
+    QModelIndexList indexes;
+    for(int i = row; i < row+count; ++i) {
+        auto idx = index(i, 0);
+        if(!indexIsValid(idx))
+            break;
+        indexes.append(idx);
+    }
+    return removeRows(indexes);
+}
 
 void SoundTableModel::update()
 {
@@ -123,12 +129,12 @@ void SoundTableModel::createSound(const QString &name, const QString &local_path
     repo_->createSound(name, local_path, upload_data);
 }
 
-const QUrl SoundTableModel::getRemoteUrl(const QModelIndex &index) const
+const QUrl SoundTableModel::getStreamUrl(const QModelIndex &index) const
 {
     if(!indexIsValid(index))
         return QUrl();
 
-    return repo_->getRemoteUrl(sounds_[index.row()]);
+    return repo_->getStreamUrl(sounds_[index.row()]);
 }
 
 void SoundTableModel::onRepoReceivedSounds(const QList<SoundData> &sounds)

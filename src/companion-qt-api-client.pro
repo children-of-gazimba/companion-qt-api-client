@@ -21,13 +21,11 @@ SOURCES += \
     main_window.cpp \
     model/sound_table_model.cpp \
     repository/abstract_repository.cpp \
-    repository/sound_repository.cpp \
-    view/sound_table_view.cpp
+    repository/sound_repository.cpp
 
 HEADERS += \
     data_types.h \
     main_window.h \
     model/sound_table_model.h \
     repository/abstract_repository.h \
-    repository/sound_repository.h \
-    view/sound_table_view.h
+    repository/sound_repository.h

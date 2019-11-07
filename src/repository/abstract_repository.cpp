@@ -19,8 +19,8 @@ AbstractRepository::AbstractRepository(QObject *parent)
     , secrets_path_("../src/secret.json")
     , api_token_()
     , host_("0.0.0.0")
-    , port_(5000)
-    , scheme_("https")
+    , port_(44100)
+    , scheme_("http")
 {
     initNetworkAccess();
 }

@@ -49,13 +49,6 @@ void MainWindow::initWidgets()
         req.setUrl(QUrl(text));
         req.setSslConfiguration(conf);
         player_->setMedia(QMediaContent(req));
-
-        /*
-        gst-pipeline: appsrc blocksize=4294967295 ! \
-      video/x-raw,format=BGRx,framerate=30/1,width=200,height=147 ! \
-      coloreffects preset=heat ! videoconvert ! video/x-raw,format=I420 ! jpegenc ! rtpjpegpay ! \
-      udpsink host=127.0.0.1 port=5000
-        */
     });
 
     connect(player_, &QMediaPlayer::stateChanged,
@@ -90,7 +83,7 @@ void MainWindow::initWidgets()
 
     connect(sound_view_, &QTableView::doubleClicked,
             this, [=](const QModelIndex& index) {
-        sound_label_->setText(sound_model_->getRemoteUrl(index).toString());
+        sound_label_->setText(sound_model_->getStreamUrl(index).toString());
     });
 
     connect(button_refresh_, &QPushButton::clicked,

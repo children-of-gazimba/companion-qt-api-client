@@ -22,8 +22,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
 
-    bool removeRows(const QModelIndexList& indexes);
-
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
@@ -31,22 +29,24 @@ public:
     bool setHeaderData(int section, Qt::Orientation orientation,
                        const QVariant &value, int role = Qt::DisplayRole);
 
-    //bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
-    //bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(const QModelIndexList& indexes);
+
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     /* update model data from repository */
     void update();
 
     void createSound(const QString& name, const QString& local_path, bool upload_data = true);
 
-    const QUrl getRemoteUrl(const QModelIndex& index) const;
+    const QUrl getStreamUrl(const QModelIndex& index) const;
 
-Q_SIGNALS:
+signals:
 
-public Q_SLOTS:
+public slots:
 
-private Q_SLOTS:
+private slots:
     void onRepoReceivedSounds(const QList<SoundData>& sounds);
     void onRepoCreatedSound(const SoundData& sound);
 
