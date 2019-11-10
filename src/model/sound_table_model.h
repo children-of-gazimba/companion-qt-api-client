@@ -45,6 +45,8 @@ public:
     /* set data from external source */
     void setSounds(const QList<SoundData>& sounds);
 
+    const SoundData& getSound(int row) const;
+
 signals:
 
 public slots:
