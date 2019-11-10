@@ -137,6 +137,11 @@ const QUrl SoundTableModel::getStreamUrl(const QModelIndex &index) const
     return repo_->getStreamUrl(sounds_[index.row()]);
 }
 
+void SoundTableModel::setSounds(const QList<SoundData> &sounds)
+{
+    onRepoReceivedSounds(sounds);
+}
+
 void SoundTableModel::onRepoReceivedSounds(const QList<SoundData> &sounds)
 {
     sounds_ = sounds;

@@ -42,6 +42,9 @@ public:
 
     const QUrl getStreamUrl(const QModelIndex& index) const;
 
+    /* set data from external source */
+    void setSounds(const QList<SoundData>& sounds);
+
 signals:
 
 public slots:
