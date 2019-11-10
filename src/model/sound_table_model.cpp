@@ -142,6 +142,11 @@ void SoundTableModel::setSounds(const QList<SoundData> &sounds)
     onRepoReceivedSounds(sounds);
 }
 
+const SoundData &SoundTableModel::getSound(int row) const
+{
+    return sounds_[row];
+}
+
 void SoundTableModel::onRepoReceivedSounds(const QList<SoundData> &sounds)
 {
     sounds_ = sounds;
