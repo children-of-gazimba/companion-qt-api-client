@@ -47,6 +47,8 @@ public:
 
     const SoundData& getSound(int row) const;
 
+    const QList<SoundData>& getSounds() const;
+
 signals:
 
 public slots:
