@@ -12,9 +12,13 @@
 #include <QHeaderView>
 #include <QFileDialog>
 #include <QMenu>
+#include <QNetworkConfigurationManager>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , url_edit_(new QLineEdit(this))
+    , token_edit_(new QLineEdit(this))
     , button_refresh_(new QPushButton(tr("refresh"), this))
     , button_upload_(new QPushButton(tr("upload"), this))
     , sound_view_(new QTableView(this))
@@ -35,7 +39,6 @@ MainWindow::~MainWindow()
 void MainWindow::initWidgets()
 {
     QNetworkConfiguration conf;
-
 
     sound_label_->setReadOnly(true);
     connect(sound_label_, &QLineEdit::textChanged,
@@ -80,6 +83,15 @@ void MainWindow::initWidgets()
         });
         menu->exec(mapToGlobal(p));
     });
+    sound_model_->loadApiTokenFromJsonFile("../src/secret.json");
+    sound_model_->update();
+
+    connect(sound_model_->repo(), &AbstractRepository::requestError,
+            this, [=](QNetworkAccessManager::Operation op, const QString& path, const QString& errorString){
+        QMessageBox box;
+        box.setText(AbstractRepository::toString(op) +  " " + path + " error: " + errorString);
+        box.exec();
+    });
 
     connect(sound_view_, &QTableView::doubleClicked,
             this, [=](const QModelIndex& index) {
@@ -87,7 +99,12 @@ void MainWindow::initWidgets()
     });
 
     connect(button_refresh_, &QPushButton::clicked,
-            sound_model_, &SoundTableModel::update);
+            this, [=](){
+        sound_model_->setServerUrl(QUrl(url_edit_->text()));
+        sound_model_->setApiToken(token_edit_->text());
+        sound_model_->update();
+    });
+
     connect(button_upload_, &QPushButton::clicked,
             this, [=](){
         QString file = QFileDialog::getOpenFileName(
@@ -97,6 +114,9 @@ void MainWindow::initWidgets()
         if(file.size() > 0)
             sound_model_->createSound(QUrl(file).fileName(), file, true);
     });
+
+    url_edit_->setText(sound_model_->getServerUrl().toString());
+    token_edit_->setText(sound_model_->getApiToken());
 }
 
 void MainWindow::initLayout()
@@ -108,6 +128,8 @@ void MainWindow::initLayout()
     player_layout->setContentsMargins(0,0,0,0);
 
     QVBoxLayout* layout = new QVBoxLayout;
+    layout->addWidget(url_edit_);
+    layout->addWidget(token_edit_);
     layout->addWidget(sound_view_);
     layout->addWidget(button_refresh_);
     layout->addWidget(button_upload_);

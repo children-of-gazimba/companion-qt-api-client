@@ -16,16 +16,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    client_exceptions.cpp \
     data_types.cpp \
     main.cpp \
     main_window.cpp \
+    model/abstract_api_table_model.cpp \
     model/sound_table_model.cpp \
     repository/abstract_repository.cpp \
     repository/sound_repository.cpp
 
 HEADERS += \
+    client_exceptions.h \
     data_types.h \
     main_window.h \
+    model/abstract_api_table_model.h \
     model/sound_table_model.h \
     repository/abstract_repository.h \
     repository/sound_repository.h

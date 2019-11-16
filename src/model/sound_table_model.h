@@ -1,17 +1,19 @@
 #ifndef SOUND_TABLE_MODEL_H
 #define SOUND_TABLE_MODEL_H
 
-#include <QAbstractTableModel>
+#include "abstract_api_table_model.h"
 
 #include "repository/sound_repository.h"
 #include "data_types.h"
 
-class SoundTableModel : public QAbstractTableModel
+class SoundTableModel : public AbstractApiTableModel
 {
     Q_OBJECT
 public:
     explicit SoundTableModel(QObject *parent = nullptr);
     ~SoundTableModel() = default;
+
+    AbstractRepository* repo() const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 

@@ -20,12 +20,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     $$PWD/data_types.cpp \
+    $$PWD/client_exceptions.cpp \
+    $$PWD/model/abstract_api_table_model.cpp \
     $$PWD/model/sound_table_model.cpp \
     $$PWD/repository/abstract_repository.cpp \
     $$PWD/repository/sound_repository.cpp
 
 HEADERS += \
     $$PWD/data_types.h \
+    $$PWD/client_exceptions.h \
+    $$PWD/model/abstract_api_table_model.h \
     $$PWD/model/sound_table_model.h \
     $$PWD/repository/abstract_repository.h \
     $$PWD/repository/sound_repository.h

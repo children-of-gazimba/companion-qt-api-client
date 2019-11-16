@@ -4,12 +4,15 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 
+#include "client_exceptions.h"
+
 class AbstractRepository : public QObject
 {
     Q_OBJECT
 
 public:
     explicit AbstractRepository(QObject *parent = nullptr);
+    explicit AbstractRepository(const QString& host, int port, const QString& scheme, QObject *parent = nullptr);
     virtual ~AbstractRepository() = default;
 
     void setSslConfiguration(const QSslConfiguration& ssl_conf);
@@ -17,6 +20,7 @@ public:
 
     void setApiToken(const QString& api_token);
     const QString& getApiToken() const;
+    void loadApiTokenFromJsonFile(const QString& path = "../src/secret.json");
 
     void setHost(const QString& host);
     const QString& getHost() const;
@@ -29,12 +33,20 @@ public:
 
     static const QString toString(QNetworkAccessManager::Operation op);
 
+    void setServerUrl(const QUrl& url);
+    const QUrl getServerUrl() const;
+
 signals:
+    void requestError(QNetworkAccessManager::Operation operation,
+                      const QString& path, const QString& error_string);
 
 public slots:
 
 protected slots:
     void handleReply(QNetworkReply* reply);
+
+public:
+    static ApiException NO_ACCESS_TOKEN;
 
 protected:
     QNetworkRequest const buildRequest(const QUrl& url, bool apply_ssl_conf = true) const;
@@ -56,7 +68,6 @@ protected:
 
     QNetworkAccessManager* network_access_;
     QSslConfiguration ssl_conf_;
-    QString secrets_path_;
     QString api_token_;
 
     QString host_;
@@ -65,7 +76,6 @@ protected:
 
 private:
     void initNetworkAccess();
-    void loadApiToken();
 };
 
 #endif // ABSTRACT_REPOSITORY_H

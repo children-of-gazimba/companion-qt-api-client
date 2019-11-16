@@ -1,11 +1,16 @@
 #include "sound_table_model.h"
 
 SoundTableModel::SoundTableModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : AbstractApiTableModel(parent)
     , repo_(new SoundRepository(this))
     , sounds_()
 {
     init();
+}
+
+AbstractRepository *SoundTableModel::repo() const
+{
+    return repo_;
 }
 
 int SoundTableModel::columnCount(const QModelIndex &) const
@@ -182,6 +187,4 @@ void SoundTableModel::init()
 
     connect(repo_, &SoundRepository::soundCreated,
             this, &SoundTableModel::onRepoCreatedSound);
-
-    update();
 }

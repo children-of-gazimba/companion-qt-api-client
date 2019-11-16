@@ -12,17 +12,44 @@
 #include <QMimeDatabase>
 #include <QFileInfo>
 
+ApiException AbstractRepository::NO_ACCESS_TOKEN = ApiException("Query requires Access Token, but none has been set (call setApiToken first).");
+
 AbstractRepository::AbstractRepository(QObject *parent)
     : QObject(parent)
     , network_access_(new QNetworkAccessManager(this))
     , ssl_conf_()
-    , secrets_path_("../src/secret.json")
     , api_token_()
     , host_("0.0.0.0")
     , port_(44100)
     , scheme_("http")
 {
     initNetworkAccess();
+}
+
+AbstractRepository::AbstractRepository(const QString &host, int port, const QString &scheme, QObject *parent)
+    : QObject(parent)
+    , network_access_(new QNetworkAccessManager(this))
+    , ssl_conf_()
+    , api_token_()
+    , host_(host)
+    , port_(port)
+    , scheme_(scheme)
+{
+    initNetworkAccess();
+}
+
+void AbstractRepository::loadApiTokenFromJsonFile(const QString &path)
+{
+    QString val;
+    QFile file;
+    file.setFileName(path);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    val = file.readAll();
+    file.close();
+    QJsonDocument d = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject obj = d.object();
+    if(obj.contains("access_token"))
+        setApiToken(obj["access_token"].toString());
 }
 
 void AbstractRepository::setSslConfiguration(const QSslConfiguration &ssl_conf)
@@ -89,6 +116,22 @@ const QString AbstractRepository::toString(QNetworkAccessManager::Operation op)
     return "";
 }
 
+void AbstractRepository::setServerUrl(const QUrl &url)
+{
+    setScheme(url.scheme());
+    setPort(url.port());
+    setHost(url.host());
+}
+
+const QUrl AbstractRepository::getServerUrl() const
+{
+    QUrl url;
+    url.setHost(host_);
+    url.setPort(port_);
+    url.setScheme(scheme_);
+    return url;
+}
+
 void AbstractRepository::handleReply(QNetworkReply *reply)
 {
     if (reply->error())
@@ -128,14 +171,14 @@ const QUrl AbstractRepository::buildUrl(const QString &path, bool requires_acces
 
 const QUrl AbstractRepository::buildUrl(const QString &path, const QMap<QString, QString> &queryItems, bool requires_access_token) const
 {
-    QUrl url;
-    url.setHost(host_);
-    url.setPort(port_);
-    url.setScheme(scheme_);
+    QUrl url(getServerUrl());
     url.setPath(path);
     QUrlQuery query;
-    if(requires_access_token)
+    if(requires_access_token) {
+        if(api_token_.size() == 0)
+            throw NO_ACCESS_TOKEN;
         query.addQueryItem("access_token", api_token_);
+    }
     for(auto key: queryItems.keys())
         query.addQueryItem(key, queryItems.value(key));
     url.setQuery(query);
@@ -171,35 +214,15 @@ QHttpMultiPart *AbstractRepository::buildFilePayload(const QString &file_path, c
 
 void AbstractRepository::onHandleError(QNetworkReply *reply)
 {
-    qDebug() << "FAILURE:";
-    qDebug() << "  > " << reply->request().url().path();
-    qDebug() << "  > " << reply->errorString() << "\n";
+    emit requestError(reply->operation(), reply->request().url().path(),
+                      reply->errorString());
 }
 
 void AbstractRepository::initNetworkAccess()
 {
-    loadApiToken();
-
     connect(network_access_, &QNetworkAccessManager::finished,
             this, &AbstractRepository::handleReply);
 
     ssl_conf_ = QSslConfiguration::defaultConfiguration();
     ssl_conf_.setPeerVerifyMode(QSslSocket::VerifyNone);
-}
-
-void AbstractRepository::loadApiToken()
-{
-    QString val;
-    QFile file;
-    file.setFileName(secrets_path_);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    val = file.readAll();
-    file.close();
-
-    qDebug() << "content of 'secret.json': " << val;
-
-    QJsonDocument d = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject obj = d.object();
-    if(obj.contains("access_token"))
-        api_token_ = obj["access_token"].toString();
 }

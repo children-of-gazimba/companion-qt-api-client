@@ -21,6 +21,10 @@ private:
     void initWidgets();
     void initLayout();
 
+    const QString getCurrentServerUrl() const;
+
+    QLineEdit* url_edit_;
+    QLineEdit* token_edit_;
     QPushButton* button_refresh_;
     QPushButton* button_upload_;
     QTableView* sound_view_;
