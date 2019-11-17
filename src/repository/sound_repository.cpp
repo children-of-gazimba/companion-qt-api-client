@@ -49,7 +49,7 @@ void SoundRepository::parseSoundsReceived(const QByteArray &body)
     if(doc.isArray()) {
         for(auto val: doc.array()) {
             if(val.isObject())
-                sounds.append(SoundData::fromJsonObject(val.toObject()));
+                sounds.append(SoundData(val.toObject()));
         }
     }
 
@@ -60,7 +60,7 @@ void SoundRepository::parseSoundCreated(const QByteArray &body)
 {
     auto doc = QJsonDocument::fromJson(body);
     if(doc.isObject())
-        emit soundCreated(SoundData::fromJsonObject(doc.object()));
+        emit soundCreated(SoundData(doc.object()));
 }
 
 void SoundRepository::getSounds()
@@ -82,7 +82,7 @@ void SoundRepository::createSound(const QString &name, const QString &local_path
                 this, [=](QNetworkReply* reply){
             auto doc = QJsonDocument::fromJson(reply->readAll());
             if(doc.isObject()) {
-                auto sound = SoundData::fromJsonObject(doc.object());
+                SoundData sound(doc.object());
                 emit soundCreated(sound);
                 uploadSoundData(sound);
             }
