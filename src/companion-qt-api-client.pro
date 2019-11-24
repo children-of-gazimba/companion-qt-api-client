@@ -22,8 +22,10 @@ SOURCES += \
     main_window.cpp \
     model/abstract_api_table_model.cpp \
     model/sound_table_model.cpp \
+    model/tag_table_model.cpp \
     repository/abstract_repository.cpp \
-    repository/sound_repository.cpp
+    repository/sound_repository.cpp \
+    repository/tag_repository.cpp
 
 HEADERS += \
     client_exceptions.h \
@@ -31,5 +33,7 @@ HEADERS += \
     main_window.h \
     model/abstract_api_table_model.h \
     model/sound_table_model.h \
+    model/tag_table_model.h \
     repository/abstract_repository.h \
-    repository/sound_repository.h
+    repository/sound_repository.h \
+    repository/tag_repository.h
