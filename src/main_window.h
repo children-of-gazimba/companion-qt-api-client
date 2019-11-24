@@ -8,6 +8,7 @@
 #include <QMediaPlayer>
 
 #include "model/sound_table_model.h"
+#include "model/tag_table_model.h"
 
 class MainWindow : public QMainWindow
 {
@@ -31,6 +32,11 @@ private:
     SoundTableModel* sound_model_;
     QLineEdit* sound_label_;
     QPushButton* button_play_;
+
+    QLineEdit* tag_edit_;
+    QTableView* tag_view_;
+    TagTableModel* tag_model_;
+    QPushButton* button_add_;
 
     QMediaPlayer* player_;
 };

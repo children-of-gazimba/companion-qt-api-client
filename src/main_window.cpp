@@ -25,6 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
     , sound_model_(new SoundTableModel(this))
     , sound_label_(new QLineEdit(this))
     , button_play_(new QPushButton(tr("play"), this))
+    , tag_edit_(new QLineEdit(this))
+    , tag_view_(new QTableView(this))
+    , tag_model_(new TagTableModel(this))
+    , button_add_(new QPushButton(tr("add tag"), this))
     , player_(new QMediaPlayer(this, QMediaPlayer::StreamPlayback))
 {
     initWidgets();
@@ -117,6 +121,42 @@ void MainWindow::initWidgets()
 
     url_edit_->setText(sound_model_->getServerUrl().toString());
     token_edit_->setText(sound_model_->getApiToken());
+    tag_edit_->setPlaceholderText(tr("Enter tag name"));
+
+    tag_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tag_view_->setModel(tag_model_);
+    tag_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tag_view_->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(tag_view_, &QTableView::customContextMenuRequested,
+            this, [=](const QPoint& p){
+        QMenu *menu = new QMenu;
+        menu->addAction(tr("delete"), this, [=]() {
+            tag_model_->removeRows(tag_view_->selectionModel()->selectedRows());
+        });
+        menu->exec(mapToGlobal(p));
+    });
+    tag_model_->loadApiTokenFromJsonFile("../src/secret.json");
+    tag_model_->update();
+
+    connect(tag_model_->repo(), &AbstractRepository::requestError,
+            this, [=](QNetworkAccessManager::Operation op, const QString& path, const QString& errorString){
+        QMessageBox box;
+        box.setText(AbstractRepository::toString(op) +  " " + path + " error: " + errorString);
+        box.exec();
+    });
+
+    connect(button_refresh_, &QPushButton::clicked,
+            this, [=](){
+        tag_model_->setServerUrl(QUrl(url_edit_->text()));
+        tag_model_->setApiToken(token_edit_->text());
+        tag_model_->update();
+    });
+
+    connect(button_add_, &QPushButton::clicked,
+            this, [=](){
+            tag_model_->createTag(tag_edit_->text(), tag_edit_->text());
+    });
+
 }
 
 void MainWindow::initLayout()
@@ -134,6 +174,9 @@ void MainWindow::initLayout()
     layout->addWidget(button_refresh_);
     layout->addWidget(button_upload_);
     layout->addLayout(player_layout);
+    layout->addWidget(tag_view_);
+    layout->addWidget(tag_edit_);
+    layout->addWidget(button_add_);
 
     QWidget* container = new QWidget(this);
     container->setLayout(layout);
