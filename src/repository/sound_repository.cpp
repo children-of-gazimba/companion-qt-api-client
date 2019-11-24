@@ -1,5 +1,4 @@
 #include "sound_repository.h"
-#include "sound_repository.h"
 
 #include <QFile>
 #include <QJsonDocument>

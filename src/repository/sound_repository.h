@@ -3,9 +3,6 @@
 
 #include "repository/abstract_repository.h"
 
-#include <QNetworkAccessManager>
-#include <functional>
-
 #include "data_types.h"
 
 class SoundRepository : public AbstractRepository
