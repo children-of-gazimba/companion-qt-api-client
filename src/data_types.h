@@ -25,4 +25,13 @@ struct SoundData {
     QString uuid;
 };
 
+struct TagData {
+    TagData(const QString& name, const QString& uuid);
+
+    static const TagData fromJsonObject(const QJsonObject& obj);
+
+    QString name;
+    QString uuid;
+};
+
 #endif // DATA_TYPES_H

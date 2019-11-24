@@ -43,3 +43,19 @@ const SoundData SoundData::fromJsonObject(const QJsonObject &obj)
         s.resource = ResourceData::fromJsonObject(obj["resource"].toObject());
     return s;
 }
+
+TagData::TagData(const QString &name, const QString &uuid)
+  : name(name)
+  , uuid(uuid)
+{}
+
+const TagData TagData::fromJsonObject(const QJsonObject &obj)
+{
+    QString name = "", uuid = "";
+    if(obj.contains("name"))
+        name = obj["name"].toString();
+    if(obj.contains("uuid"))
+        uuid = obj["uuid"].toString();
+    TagData t(name, uuid);
+    return t;
+}
